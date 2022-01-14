@@ -15,7 +15,9 @@ public class API {
     private static String uri;
 
     public static void setConfiguration(ConfigurationParameters confParameters){
-        uri = "http://" + confParameters.serverIP + ":" + confParameters.serverPort;
+        if(confParameters.serverIP != null && confParameters.serverPort != 0)
+            uri = "http://" + confParameters.serverIP + ":" + confParameters.serverPort;
+        else uri = "http://localhost:8080"; //default parameters
     }
     private static final RestTemplate restTemplate = new RestTemplate();
 
@@ -39,7 +41,9 @@ public class API {
         try {
             response = restTemplate.postForObject(uri + "/users/login", loginDto, UserDto.class);
         } catch(Exception e){
-            throw new Exception(e.getMessage().split("\"")[10]);
+            if(e.getMessage().split("\"").length == 3)
+                throw new Exception("Server not connected....");
+            else throw new Exception(e.getMessage().split("\"")[10]);
         }
         if(response != null)
             return new User(response);
